@@ -54,7 +54,9 @@ const newVideoLoaded = () => {
     const video = document.querySelector("video");
 
     //if (video && !video.paused) {//!!!remove paused for shorts latr
-      video.src="./assets/replace.gif";
+const gifUrl = chrome.runtime.getURL("assets/replace.gif");
+video.src = gifUrl;
+
       overlayImageOnVideo();
     //}
 

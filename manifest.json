@@ -15,7 +15,7 @@
     ],
     "web_accessible_resources": [
       {
-        "resources": ["assets/replace.jpg"],
+        "resources": ["assets/replace.gif","assets/replace.jpg"],
         "matches": ["https://*.youtube.com/*"]
       }
     ],
