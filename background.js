@@ -10,4 +10,9 @@ chrome.tabs.onUpdated.addListener((tabId, tab) => {
       });
     }
   });
-  
+chrome.runtime.onMessage.addListener((obj, sender, response) => {
+  if (obj.type === "HOME") {
+    console.log("📨 Message received: HOME");
+    setTimeout(stopHomeVideos, 2000);
+  }
+});

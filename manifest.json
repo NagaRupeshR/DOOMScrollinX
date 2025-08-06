@@ -2,7 +2,7 @@
     "name": "NO more doom scrolling",
     "version": "0.1.0",
     "description": "Initiative to overcome DOOMSCROLLING",
-    "permissions": ["tabs"],
+    "permissions": ["tabs", "scripting", "activeTab"],
     "host_permissions": ["https://*.youtube.com/*"],
     "background": {
       "service_worker": "background.js"
