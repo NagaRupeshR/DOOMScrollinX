@@ -43,16 +43,70 @@ let triggered = localStorage.getItem("triggered") || "";
     });
   };
 
+let blockIntervalId = null; // global to track interval
+
 const newVideoLoaded = () => {
+  let attempts = 0;
+  const maxAttempts = 10;
+
   const interval = setInterval(() => {
     const video = document.querySelector("video");
-    //if (video && !video.paused) {//!!!remove paused for shorts latr
-const gifUrl = chrome.runtime.getURL("assets/replace.gif");
-video.src = gifUrl;
-      overlayImageOnVideo();
-    //}
+
+    const tagElements = document.querySelectorAll('a[href^="/hashtag/"]');
+    const tags = new Set();
+    tagElements.forEach(a => {
+      if (a.textContent.startsWith('#')) {
+        tags.add(a.textContent.trim());
+      }
+    });
+
+    if (tags.size > 0 && video) {
+      clearInterval(interval); // Found tags & video, no more polling
+      const tagq = Array.from(tags).join('_');
+
+      fetch(`http://localhost:5000/check?tag=${encodeURIComponent(tagq)}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log("🧠 API response:", data);
+          
+          if (data.result !== "Productive") {
+            // Only if NOT productive
+            overlayImageOnVideo();
+            startVideoBlockerInterval(); // keep setting .src = gif
+          } else {
+            stopVideoBlockerInterval(); // productive? stop any ongoing interval
+          }
+        })
+        .catch(error => {
+          console.error("API error:", error);
+        });
+    } else if (attempts >= maxAttempts) {
+      clearInterval(interval); // Give up if nothing found
+    }
+
+    attempts++;
   }, 500);
 };
+
+function startVideoBlockerInterval() {
+  if (blockIntervalId) return; // already running
+
+  const gifUrl = chrome.runtime.getURL("assets/replace.gif");
+  blockIntervalId = setInterval(() => {
+    const video = document.querySelector("video");
+    if (video) {
+      video.src = gifUrl;
+    }
+  }, 1000); // re-block every second
+}
+
+function stopVideoBlockerInterval() {
+  if (blockIntervalId) {
+    clearInterval(blockIntervalId);
+    blockIntervalId = null;
+  }
+}
+
 
 function overlayImageOnVideo() {
   let video;
@@ -64,7 +118,6 @@ function overlayImageOnVideo() {
   }
   if (!video) return;
   const container = video.parentElement;
-  if (container.querySelector(".overlay-image")) return;
   const img = document.createElement("img");
   img.src = chrome.runtime.getURL("assets/replace.jpg");
   Object.assign(img.style, { 
@@ -76,7 +129,6 @@ function overlayImageOnVideo() {
     objectFit: "cover",
     zIndex: "1",
   });
-  img.className = "overlay-image";
   container.style.position = "relative"; // Make sure parent allows absolute positioning
   container.appendChild(img);
 }
@@ -90,20 +142,27 @@ function overlayImageOnVideo() {
       setTimeout(stopHomeVideos, 2000);
     }
   });
+
+
+
   chrome.runtime.onMessage.addListener((obj, sender, response) => {
       const { type, value, videoId } = obj;
       if (type === "NEWV") {
+
           triggered="NEWV";
           localStorage.setItem("triggered", "NEWV");
-          overlayImageOnVideo();
+          location.reload();
+          stopVideoBlockerInterval();
           newVideoLoaded();
+
       }
       if (type === "NEWS") {
+
           triggered="NEWS";
           localStorage.setItem("triggered", "NEWS");          
           location.reload();
-          overlayImageOnVideo();
-          newVideoLoaded();
+          stopVideoBlockerInterval();
+          newVideoLoaded();    
       }
   });
   // Observe DOM changes (infinite scroll content etc.)
@@ -119,7 +178,7 @@ function overlayImageOnVideo() {
     stopHomeVideos();
   }
   if(triggered=="NEWS" || triggered=="NEWV"){
+    stopVideoBlockerInterval();
     newVideoLoaded();
-    overlayImageOnVideo();
   }
 })();
