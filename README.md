@@ -16,19 +16,7 @@ Tech Stack:
 - HuggingFace Sentence Transformers
 - Pandas, NumPy, scikit-learn
 
-DoomExt/
-│
-├── extension/ # Chrome extension files
-│ ├── contentScript.js # Core logic to scan & block
-│ ├── background.js # Message handler
-│ ├── manifest.json # Extension config
-│ └── assets/ # Replace image/gif
-│
-├── mlAPI/ # Python backend
-│ ├── main.py # Flask server + ML logic
-│ └── nonProHashtags.csv # Dataset for non-productive tags
-│
-└── README.md
+<pre> ``` DoomExt/ │ ├── extension/ # Chrome extension files │ ├── contentScript.js # Core logic to scan & block │ ├── background.js # Message handler │ ├── manifest.json # Extension config │ └── assets/ # Replace image/gif │ ├── mlAPI/ # Python backend │ ├── main.py # Flask server + ML logic │ └── nonProHashtags.csv # Dataset for non-productive tags │ └── README.md ``` </pre>
 
 How It Works : 
 1. The extension watches for new YouTube videos.
