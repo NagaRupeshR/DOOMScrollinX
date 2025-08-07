@@ -16,17 +16,16 @@ Tech Stack:
 - HuggingFace Sentence Transformers
 - Pandas, NumPy, scikit-learn
 
-extension/                  → Chrome Extension files
-  ├── contentScript.js      → Core logic to scan hashtags & block videos
-  ├── background.js         → Message handler for extension
-  ├── manifest.json         → Extension config (Manifest v3)
-  └── assets/               → Contains image/gif to overlay blocked videos
+extension → Chrome Extension files
+  - contentScript.js      → Core logic to scan hashtags & block videos
+  - background.js         → Message handler for extension
+  - manifest.json         → Extension config (Manifest v3)
+  - assets/               → Contains image/gif to overlay blocked videos
 
-mlAPI/                      → Python backend for ML hashtag classification
-  ├── main.py               → Flask server + ML logic using Sentence Transformers
-  └── nonProHashtags.csv    → Dataset of non-productive hashtags
+mlAPI/ → Python backend for ML hashtag classification
+  main.py               → Flask server + ML logic using Sentence Transformers
+  nonProHashtags.csv    → Dataset of non-productive hashtags
 
-README.md                   → Project documentation
 
 How It Works : 
 1. The extension watches for new YouTube videos.
