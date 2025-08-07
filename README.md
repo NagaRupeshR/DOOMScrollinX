@@ -23,8 +23,8 @@ extension → Chrome Extension files
   - assets/               → Contains image/gif to overlay blocked videos
 
 mlAPI/ → Python backend for ML hashtag classification
-  main.py               → Flask server + ML logic using Sentence Transformers
-  nonProHashtags.csv    → Dataset of non-productive hashtags
+  - main.py               → Flask server + ML logic using Sentence Transformers
+  - nonProHashtags.csv    → Dataset of non-productive hashtags
 
 
 How It Works : 
