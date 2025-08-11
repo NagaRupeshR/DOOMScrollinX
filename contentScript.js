@@ -1,28 +1,28 @@
 let triggered = localStorage.getItem("triggered") || "";
 (() => {
   const stopHomeVideos = () => {
-    const thumbnails = document.querySelectorAll("ytd-rich-grid-media ytd-thumbnail");
+    const thumbnails = document.querySelectorAll("yt-thumbnail-view-model");
     thumbnails.forEach((thumb) => {
-      const video = thumb.querySelector("video");
-      if (video) {
-        video.pause();
-        video.removeAttribute("src");
-        video.load();
-        video.muted = true;
-        video.removeAttribute("autoplay");
-        video.removeAttribute("aria-hidden");
-        video.removeAttribute("tabindex");
-        video.removeAttribute("aria-label");
-        video.setAttribute("muted", "true");
-      }
-      const unmuteButton = thumb.querySelector(".ytp-unmute.ytp-popup");
-      if (unmuteButton) {
-        unmuteButton.remove();
-      }
-      const overlayUI = thumb.querySelector(".ytp-hover-playlist-ui, .ytp-popup, .ytp-tooltip");
-      if (overlayUI) {
-        overlayUI.remove();
-      }
+      const video = thumb;
+      // if (video) {
+      //   video.pause();
+      //   video.removeAttribute("src");
+      //   video.load();
+      //   video.muted = true;
+      //   video.removeAttribute("autoplay");
+      //   video.removeAttribute("aria-hidden");
+      //   video.removeAttribute("tabindex");
+      //   video.removeAttribute("aria-label");
+      //   video.setAttribute("muted", "true");
+      // }
+      // const unmuteButton = thumb.querySelector(".ytp-unmute.ytp-popup");
+      // if (unmuteButton) {
+      //   unmuteButton.remove();
+      // }
+      // const overlayUI = thumb.querySelector(".ytp-hover-playlist-ui, .ytp-popup, .ytp-tooltip");
+      // if (overlayUI) {
+      //   overlayUI.remove();
+      // }
       if (!thumb.querySelector(".doom-overlay")) {
         const overlay = document.createElement("div");
         Object.assign(overlay.style, {

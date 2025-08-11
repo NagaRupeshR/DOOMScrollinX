@@ -9,10 +9,10 @@ chrome.tabs.onUpdated.addListener((tabId, tab) => {
         type: "NEWS",
       });
     }
+    else if (tab.url && tab.url.includes("youtube.com/")) {
+      chrome.tabs.sendMessage(tabId, {
+        type: "HOME",
+      });
+    }
   });
-chrome.runtime.onMessage.addListener((obj, sender, response) => {
-  if (obj.type === "HOME") {
-    console.log("📨 Message received: HOME");
-    setTimeout(stopHomeVideos, 2000);
-  }
-});
+
