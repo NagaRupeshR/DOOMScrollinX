@@ -20,11 +20,19 @@ print("✅ Model & vectors ready!")
 # Step 2️⃣: Define route for checking tags
 @app.route("/check", methods=["GET"])
 def check_tag():
-    tag = request.args.get("tag")
-    if not tag:
+    raw_tag = request.args.get("tag")
+    if not raw_tag:
         return jsonify({"error": "No tag provided"}), 400
 
-    test_vector = model.encode([tag])[0]
+    # Split + clean hashtags
+    split_tags = raw_tag.split("_")
+    clean_tags = [t[1:] if t.startswith("#") else t for t in split_tags]
+    print("cleaned",clean_tags)
+    # Encode each tag & average
+    vectors = [model.encode([t])[0] for t in clean_tags]
+    test_vector = np.mean(vectors, axis=0)
+
+    # Compare with dataset
     similarities = cosine_similarity([test_vector], non_prod_vectors)
     max_sim = np.max(similarities)
 
@@ -32,10 +40,12 @@ def check_tag():
     result = "Non-Productive" if max_sim >= threshold else "Productive"
 
     return jsonify({
-        "input": tag,
+        "input": clean_tags,
         "similarity": round(float(max_sim), 2),
         "result": result
     }), 200
+
+
 
 # Optional index route
 @app.route("/")

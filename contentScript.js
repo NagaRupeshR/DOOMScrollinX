@@ -56,7 +56,7 @@ const newVideoLoaded = () => {
     const tags = new Set();
     tagElements.forEach(a => {
       if (a.textContent.startsWith('#')) {
-        tags.add(a.textContent.trim());
+        tags.add(a.textContent.trim().substring(1));
       }
     });
 
