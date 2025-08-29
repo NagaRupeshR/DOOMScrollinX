@@ -12,7 +12,7 @@ CORS(app)
 # Step 1️⃣: Load model & pre-encode once when server starts
 print("🔥 Initializing model & vectors (only once)...")
 model = SentenceTransformer('paraphrase-MiniLM-L3-v2')
-df = pd.read_csv("nonProHashtags.csv")
+df = pd.read_csv("hashtags_dedup.csv", encoding="latin1")
 non_prod_tags = df['lemmatized_tags'].tolist()
 non_prod_vectors = model.encode(non_prod_tags)
 print("✅ Model & vectors ready!")
@@ -30,11 +30,11 @@ def check_tag():
     print("cleaned",clean_tags)
     # Encode each tag & average
     vectors = [model.encode([t])[0] for t in clean_tags]
-    test_vector = np.mean(vectors, axis=0)
+    
 
     # Compare with dataset
-    similarities = cosine_similarity([test_vector], non_prod_vectors)
-    max_sim = np.max(similarities)
+    similarities = [cosine_similarity([vec], non_prod_vectors).max() for vec in vectors]
+    max_sim = max(similarities)
 
     threshold = 0.45
     result = "Non-Productive" if max_sim >= threshold else "Productive"
@@ -44,7 +44,6 @@ def check_tag():
         "similarity": round(float(max_sim), 2),
         "result": result
     }), 200
-
 
 
 # Optional index route
