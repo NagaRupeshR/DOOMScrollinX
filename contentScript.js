@@ -4,25 +4,7 @@ let triggered = localStorage.getItem("triggered") || "";
     const thumbnails = document.querySelectorAll("yt-thumbnail-view-model");
     thumbnails.forEach((thumb) => {
       const video = thumb;
-      // if (video) {
-      //   video.pause();
-      //   video.removeAttribute("src");
-      //   video.load();
-      //   video.muted = true;
-      //   video.removeAttribute("autoplay");
-      //   video.removeAttribute("aria-hidden");
-      //   video.removeAttribute("tabindex");
-      //   video.removeAttribute("aria-label");
-      //   video.setAttribute("muted", "true");
-      // }
-      // const unmuteButton = thumb.querySelector(".ytp-unmute.ytp-popup");
-      // if (unmuteButton) {
-      //   unmuteButton.remove();
-      // }
-      // const overlayUI = thumb.querySelector(".ytp-hover-playlist-ui, .ytp-popup, .ytp-tooltip");
-      // if (overlayUI) {
-      //   overlayUI.remove();
-      // }
+
       if (!thumb.querySelector(".doom-overlay")) {
         const overlay = document.createElement("div");
         Object.assign(overlay.style, {
@@ -43,7 +25,7 @@ let triggered = localStorage.getItem("triggered") || "";
     });
   };
 
-let blockIntervalId = null; // global to track interval
+let blockIntervalId = null; 
 
 const newVideoLoaded = () => {
   let attempts = 0;
@@ -61,7 +43,7 @@ const newVideoLoaded = () => {
     });
 
     if (tags.size > 0 && video) {
-      clearInterval(interval); // Found tags & video, no more polling
+      clearInterval(interval);
       const tagq = Array.from(tags).join('_');
 
       fetch(`http://localhost:5000/check?tag=${encodeURIComponent(tagq)}`)
@@ -70,18 +52,21 @@ const newVideoLoaded = () => {
           console.log("🧠 API response:", data);
           
           if (data.result !== "Productive") {
-            // Only if NOT productive
+            chrome.storage.local.get(["blockedCount"], (res) => {
+              let newCount = (res.blockedCount || 0) + 1;
+              chrome.storage.local.set({ blockedCount: newCount });
+            });
             overlayImageOnVideo();
-            startVideoBlockerInterval(); // keep setting .src = gif
+            startVideoBlockerInterval(); 
           } else {
-            stopVideoBlockerInterval(); // productive? stop any ongoing interval
+            stopVideoBlockerInterval();
           }
         })
         .catch(error => {
           console.error("API error:", error);
         });
     } else if (attempts >= maxAttempts) {
-      clearInterval(interval); // Give up if nothing found
+      clearInterval(interval);
     }
 
     attempts++;
@@ -89,7 +74,7 @@ const newVideoLoaded = () => {
 };
 
 function startVideoBlockerInterval() {
-  if (blockIntervalId) return; // already running
+  if (blockIntervalId) return; 
 
   const gifUrl = chrome.runtime.getURL("assets/replace.gif");
   blockIntervalId = setInterval(() => {
@@ -97,7 +82,7 @@ function startVideoBlockerInterval() {
     if (video) {
       video.src = gifUrl;
     }
-  }, 1000); // re-block every second
+  }, 1000); 
 }
 
 function stopVideoBlockerInterval() {
@@ -123,13 +108,13 @@ function overlayImageOnVideo() {
   Object.assign(img.style, { 
     position: "absolute",
     top: "0",
-    left: "0", // change to "right: 0" if you want just top-right corner
+    left: "0",
     width: "100%",
     height: "100%",
     objectFit: "cover",
     zIndex: "1",
   });
-  container.style.position = "relative"; // Make sure parent allows absolute positioning
+  container.style.position = "relative"; 
   container.appendChild(img);
 }
 
@@ -165,7 +150,6 @@ function overlayImageOnVideo() {
           newVideoLoaded();    
       }
   });
-  // Observe DOM changes (infinite scroll content etc.)
   const observer = new MutationObserver(() => {
     stopHomeVideos();
   });
