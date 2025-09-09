@@ -44,31 +44,39 @@ let triggered = localStorage.getItem("triggered") || "";
       callback(data.blockedChannels);
     });
   }
-  function checkAndBlockChannel() {
+function waitForChannelAndBlock() {
+  let attempts = 0;
+  const maxAttempts = 10;
+
+  const interval = setInterval(() => {
     const channelId = getChannelIdFromPage();
-    if (!channelId) return; // nothing found
+    if (channelId) {
+      clearInterval(interval);
+      getBlockedChannels((blockedList) => {
+        if (blockedList.includes(channelId)) {
+          console.log("⛔ Channel is blocked:", channelId);
+          chrome.storage.local.get(["blockedCount"], (res) => {
+            let newCount = (res.blockedCount || 0) + 1;
+            chrome.storage.local.set({ blockedCount: newCount });
+          });
+          overlayImageOnVideo();
+          startVideoBlockerInterval();
+        } else {
+          console.log("✅ Channel allowed:", channelId);
+        }
+      });
+    } else if (attempts >= maxAttempts) {
+      clearInterval(interval);
+    }
+    attempts++;
+  }, 500);
+}
 
-    getBlockedChannels((blockedList) => {
-      if (blockedList.includes(channelId)) {
-        console.log("⛔ Channel is blocked:", channelId);
-
-        chrome.storage.local.get(["blockedCount"], (res) => {
-          let newCount = (res.blockedCount || 0) + 1;
-          chrome.storage.local.set({ blockedCount: newCount });
-        });
-
-        overlayImageOnVideo();
-        startVideoBlockerInterval();
-      } else {
-        console.log("✅ Channel allowed:", channelId);
-      }
-    });
-  }
 
 let blockIntervalId = null; 
 
 const newVideoLoaded = () => {
-  checkAndBlockChannel();
+  waitForChannelAndBlock();
   let attempts = 0;
   const maxAttempts = 10;
 
