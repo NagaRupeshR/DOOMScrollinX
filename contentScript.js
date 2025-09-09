@@ -24,10 +24,51 @@ let triggered = localStorage.getItem("triggered") || "";
       }
     });
   };
+  function getChannelIdFromPage() {
+    const link = document.querySelector("ytd-video-owner-renderer a.yt-simple-endpoint");
+    if (!link) return null;
+    const href = link.getAttribute("href");
+    if (href.startsWith("/channel/")){
+      return href.replace("/channel/", "").trim();
+    }
+    else if (href.startsWith("/@")){
+      return href.replace("/@", "").trim();
+    }
+    else if (href.startsWith("/c/")){
+      return href.replace("/c/", "").trim();
+    }
+    return null;
+  }
+  function getBlockedChannels(callback) {
+    chrome.storage.sync.get({ blockedChannels: [] }, (data) => {
+      callback(data.blockedChannels);
+    });
+  }
+  function checkAndBlockChannel() {
+    const channelId = getChannelIdFromPage();
+    if (!channelId) return; // nothing found
+
+    getBlockedChannels((blockedList) => {
+      if (blockedList.includes(channelId)) {
+        console.log("⛔ Channel is blocked:", channelId);
+
+        chrome.storage.local.get(["blockedCount"], (res) => {
+          let newCount = (res.blockedCount || 0) + 1;
+          chrome.storage.local.set({ blockedCount: newCount });
+        });
+
+        overlayImageOnVideo();
+        startVideoBlockerInterval();
+      } else {
+        console.log("✅ Channel allowed:", channelId);
+      }
+    });
+  }
 
 let blockIntervalId = null; 
 
 const newVideoLoaded = () => {
+  checkAndBlockChannel();
   let attempts = 0;
   const maxAttempts = 10;
 
