@@ -5,20 +5,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const addChannelBtn = document.getElementById("addChannelBtn");
   const removeChannelBtn = document.getElementById("removeChannelBtn");
 
-  // Load blocked count
-  chrome.storage.local.get(["blockedCount"], (data) => {
+  // Load blocked count + time saved
+  chrome.storage.local.get(["blockedCount", "timeSaved"], (data) => {
     const count = data.blockedCount || 0;
     blockedCountEl.textContent = count;
-    timeSavedEl.textContent = (count * 5); // assume 5 min per video
+
+    const savedSecs = data.timeSaved || 0;
+    const savedMins = Math.floor(savedSecs / 60);
+    timeSavedEl.textContent = savedMins;
   });
 
   // Reset button
   resetBtn.addEventListener("click", () => {
-    chrome.storage.local.set({ blockedCount: 0 }, () => {
+    chrome.storage.local.set({ blockedCount: 0, timeSaved: 0 }, () => {
       blockedCountEl.textContent = 0;
       timeSavedEl.textContent = 0;
     });
   });
+
 
   // Helper: Get channelId of current active tab
   function getCurrentChannelId(callback) {

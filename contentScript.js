@@ -24,21 +24,49 @@ let triggered = localStorage.getItem("triggered") || "";
       }
     });
   };
-  function getChannelIdFromPage() {
-    const link = document.querySelector("ytd-video-owner-renderer a.yt-simple-endpoint");
-    if (!link) return null;
-    const href = link.getAttribute("href");
-    if (href.startsWith("/channel/")){
-      return href.replace("/channel/", "").trim();
+  function addTimeSaved(video) {
+    if (!video) return;
+
+    // Get the video duration in seconds (if available)
+    let duration = Math.floor(video.duration || 0);
+
+    // Fallback: shorts sometimes don’t expose duration early
+    if (duration === 0) {
+      duration = 60; // assume ~1 min for shorts
     }
-    else if (href.startsWith("/@")){
-      return href.replace("/@", "").trim();
-    }
-    else if (href.startsWith("/c/")){
-      return href.replace("/c/", "").trim();
-    }
-    return null;
+
+    // Save to storage
+    chrome.storage.local.get(["timeSaved"], (res) => {
+      let total = res.timeSaved || 0;
+      total += duration; // add new video duration
+      chrome.storage.local.set({ timeSaved: total }, () => {
+        console.log(`⏳ Saved ${duration} secs, total = ${total} secs`);
+      });
+    });
   }
+
+
+  function getChannelIdFromPage() {
+  let link = document.querySelector(
+    'a[href^="/channel/"], a[href^="/@"]'
+  );
+
+  if (!link) return null;
+
+  const href = link.getAttribute("href");
+  if (!href) return null;
+
+  if (href.startsWith("/channel/")) {
+    return href.replace("/channel/", "").trim();
+  } else if (href.startsWith("/@")) {
+    return href.split("/")[1].replace("@", "").trim();
+  } else if (href.startsWith("/c/")) {
+    return href.replace("/c/", "").trim();
+  }
+
+  return null;
+}
+
   function getBlockedChannels(callback) {
     chrome.storage.sync.get({ blockedChannels: [] }, (data) => {
       callback(data.blockedChannels);
@@ -107,6 +135,7 @@ const newVideoLoaded = () => {
             });
             overlayImageOnVideo();
             startVideoBlockerInterval(); 
+            addTimeSaved(video);
           } else {
             stopVideoBlockerInterval();
           }
