@@ -24,26 +24,34 @@ let triggered = localStorage.getItem("triggered") || "";
       }
     });
   };
-  function addTimeSaved(video) {
-    if (!video) return;
+function addTimeSaved(video) {
+  if (!video) return;
 
-    // Get the video duration in seconds (if available)
-    let duration = Math.floor(video.duration || 0);
-
-    // Fallback: shorts sometimes don’t expose duration early
-    if (duration === 0) {
-      duration = 60; // assume ~1 min for shorts
-    }
-
-    // Save to storage
-    chrome.storage.local.get(["timeSaved"], (res) => {
-      let total = res.timeSaved || 0;
-      total += duration; // add new video duration
-      chrome.storage.local.set({ timeSaved: total }, () => {
-        console.log(`⏳ Saved ${duration} secs, total = ${total} secs`);
-      });
-    });
+  // Wait until metadata (like duration) is available
+  if (video.readyState >= 1 && video.duration > 0) {
+    saveDuration(video.duration);
+  } else {
+    video.addEventListener("loadedmetadata", () => {
+      saveDuration(video.duration);
+    }, { once: true });
   }
+}
+
+function saveDuration(duration) {
+  let secs = Math.floor(duration || 0);
+
+  // Shorts safety fallback
+  if (secs === 0) secs = 60;
+
+  chrome.storage.local.get(["timeSaved"], (res) => {
+    let total = res.timeSaved || 0;
+    total += secs;
+    chrome.storage.local.set({ timeSaved: total }, () => {
+      console.log(`⏳ Saved ${secs} secs, total = ${total} secs`);
+    });
+  });
+}
+
 
 
   function getChannelIdFromPage() {
@@ -72,6 +80,23 @@ let triggered = localStorage.getItem("triggered") || "";
       callback(data.blockedChannels);
     });
   }
+
+  function waitForVideoAndSaveTime() {
+  let tries = 0;
+  const timer = setInterval(() => {
+    const video = document.querySelector("video");
+    if (video) {
+      addTimeSaved(video);
+      clearInterval(timer);
+    } else if (tries > 10) {
+      // fallback in case no <video> ever appears
+      addTimeSaved({ duration: 60 }); // assume short
+      clearInterval(timer);
+    }
+    tries++;
+  }, 500);
+}
+
 function waitForChannelAndBlock() {
   let attempts = 0;
   const maxAttempts = 10;
@@ -89,6 +114,7 @@ function waitForChannelAndBlock() {
           });
           overlayImageOnVideo();
           startVideoBlockerInterval();
+          waitForVideoAndSaveTime();
         } else {
           console.log("✅ Channel allowed:", channelId);
         }
