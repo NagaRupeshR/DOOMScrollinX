@@ -22,18 +22,20 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 }
 
-  // Load blocked count + time saved
-  chrome.storage.local.get(["blockedCount", "timeSaved"], (data) => {
-    const count = data.blockedCount || 0;
-    blockedCountEl.textContent = count;
+// Load blocked count + time saved + channels
+chrome.storage.local.get(["blockedCount", "timeSaved"], (localData) => {
+  const count = localData.blockedCount || 0;
+  blockedCountEl.textContent = count;
 
-    const savedSecs = data.timeSaved || 0;
-    const savedMins = Math.floor(savedSecs / 60);
-    timeSavedEl.textContent = savedMins;
+  const savedSecs = localData.timeSaved || 0;
+  const savedMins = Math.floor(savedSecs / 60);
+  timeSavedEl.textContent = savedMins;
 
-    const channels = data.blockedChannels || [];
-    renderBlockedChannels(channels);
+  // 🚀 Pull blocked channels from sync, not local
+  chrome.storage.sync.get({ blockedChannels: [] }, (syncData) => {
+    renderBlockedChannels(syncData.blockedChannels);
   });
+});
 
   // Reset button
   resetBtn.addEventListener("click", () => {
