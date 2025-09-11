@@ -22,25 +22,25 @@ Tech Stack:
 
 PROJECT STRUCTURE
 DOOMEXTPROJ/
-│── assets/ # Extension assets (icons + overlay)
-│ ├── icon16.png
-│ ├── icon48.png
-│ ├── icon128.png
-│ ├── replace.gif
-│ └── replace.jpg
-│
-│── mlAPI/ # Python ML API backend
-│ ├── hashtags_dedup.csv # Dataset of non-productive hashtags
-│ └── main.py # Flask ML server
-│
-│── background.js # Background service worker
-│── contentScript.js # Blocks hashtags + channels
-│── manifest.json # Chrome extension config (MV3)
-│── popup.css # Popup styling
-│── popup.html # Popup UI
-│── popup.js # Popup logic (blocklist, counters)
-│── LICENSE # License file
-└── README.md # Project documentation
+assets/ # Extension assets (icons + overlay)
+── icon16.png
+── icon48.png
+── icon128.png
+── replace.gif
+── replace.jpg
+
+mlAPI/ # Python ML API backend
+── hashtags_dedup.csv # Dataset of non-productive hashtags
+── main.py # Flask ML server
+
+── background.js # Background service worker
+── contentScript.js # Blocks hashtags + channels
+── manifest.json # Chrome extension config (MV3)
+── popup.css # Popup styling
+── popup.html # Popup UI
+── popup.js # Popup logic (blocklist, counters)
+── LICENSE # License file
+── README.md # Project documentation
 
 How It Works :
 
