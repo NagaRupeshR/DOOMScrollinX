@@ -20,6 +20,7 @@ Tech Stack:
 - HuggingFace Sentence Transformers
 - Pandas, NumPy, scikit-learn
 
+```bash
 PROJECT STRUCTURE
 DOOMEXTPROJ/
 assets/ # Extension assets (icons + overlay)
@@ -41,6 +42,7 @@ mlAPI/ # Python ML API backend
 ── popup.js # Popup logic (blocklist, counters)
 ── LICENSE # License file
 ── README.md # Project documentation
+```
 
 How It Works :
 
@@ -55,9 +57,8 @@ How It Works :
 
 Setup Instructions:
 
-1. Clone the repo
-
 ```bash
+1. Clone the repo
 git clone https://github.com/yourusername/DoomExtension.git
 cd DoomExtension
 
@@ -70,13 +71,11 @@ python main.py
 Open chrome://extensions
 Enable Developer Mode
 Click Load unpacked → Select extension/ folder
+```
 
 ⚠️ Note: This project was tested and works on Python 3.10.
 Python 3.13 had compatibility issues with certain ML libraries.
 It’s recommended to use a virtual environment.
 
-
 Preview of how output looks like
 ( https://drive.google.com/drive/folders/1Nz9b6X_UEQj1XcH19qVfyZgix0mZl9Hv?usp=drive_link )
-
-```
